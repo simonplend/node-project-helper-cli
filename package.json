@@ -1,0 +1,17 @@
+{
+  "name": "bootstrap",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": "./bin/bootstrap.js",
+  "author": "Simon Plenderleith <simon@simonplend.co.uk> (https://simonplend.com/)",
+  "dependencies": {
+    "gitignore": "^0.7.0",
+    "mrm": "^3.0.10",
+    "mrm-core": "^6.1.7",
+    "mrm-task-editorconfig": "^3.0.8",
+    "mrm-task-lint-staged": "^6.0.8",
+    "undici": "^4.13.0",
+    "which": "^2.0.2",
+    "zx": "^4.3.0"
+  }
+}
