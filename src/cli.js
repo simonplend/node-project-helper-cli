@@ -67,21 +67,23 @@ export async function cli(argv) {
 		}
 
 		/**
-		 * Generate a package.json file.
+		 * Generate package.json file if one doesn't already exist.
 		 *
 		 * Currently optimised for a Node.js application.
 		 */
 
-		await $`npm init --yes`;
+		if (!packageJson().exists()) {
+			await $`npm init --yes`;
 
-		packageJson()
-			.unset("version")
-			.unset("description")
-			.unset("main")
-			.unset("keywords")
-			.set("type", options.moduleType)
-			.set("private", true)
-			.save();
+			packageJson()
+				.unset("version")
+				.unset("description")
+				.unset("main")
+				.unset("keywords")
+				.set("type", options.moduleType)
+				.set("private", true)
+				.save();
+		}
 
 		/**
 		 * Install packages as project dependencies.
