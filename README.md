@@ -8,10 +8,12 @@ Potential feature additions are tracked on
 
 ## Requirements
 
-- Git and GitHub CLI (if you want to use the `--git` option)
-	- [Add a global git config](#add-a-global-git-config)
-- Node.js, npm and npx
+- [Node.js](https://nodejs.org/en/) >= v16.0.0
+- npm
 	- [Configure npm init defaults](#configure-npm-init-defaults)
+- [Git](https://git-scm.com/) (for the `--git` option)
+	- [Add a global git config](#add-a-global-git-config)
+- [GitHub CLI](https://cli.github.com/) (>= v2.5.0)
 
 ## Install
 
