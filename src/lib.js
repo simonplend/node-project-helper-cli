@@ -20,6 +20,7 @@ export async function optionsFromArgv(argv) {
 		string: ["dependencies"],
 		boolean: [
 			"git",
+			"github",
 			"esm",
 			"editorconfig",
 			"prettier",
@@ -29,6 +30,7 @@ export async function optionsFromArgv(argv) {
 		],
 		default: {
 			git: false,
+			github: false,
 			esm: false,
 			editorconfig: false,
 			prettier: false,
@@ -46,6 +48,7 @@ export async function optionsFromArgv(argv) {
 	const options = {
 		projectName,
 		git: argv.git,
+		github: argv.github,
 		moduleType: argv.esm ? "module" : "commonjs",
 		dependencies: argv.dependencies
 			? packagesStringToArray(argv.dependencies)
@@ -57,6 +60,20 @@ export async function optionsFromArgv(argv) {
 		readme: argv.readme,
 	};
 
+	if (options.github && !options.git) {
+		throw new Error(
+			`Can't use --github flag without the --git flag.`
+		);
+	}
+
+	if (options.lintStaged) {
+		if (!options.git || (!options.prettier && !options.eslint)) {
+			throw new Error(
+				`Can't use --lint-staged flag.\nRequires --git flag, and --prettier or --eslint flags, to be set.`
+			);
+		}
+	}
+
 	if (options.dependencies.length) {
 		console.log(
 			chalk.blue(
@@ -66,14 +83,6 @@ export async function optionsFromArgv(argv) {
 			)
 		);
 		await verifyNpmPackagesExist(options.dependencies);
-	}
-
-	if (options.lintStaged) {
-		if (!options.git || (!options.prettier && !options.eslint)) {
-			throw new Error(
-				`Can't use --lint-staged flag.\nRequires --git flag, and --prettier or --eslint flags, to be set.`
-			);
-		}
 	}
 
 	return options;

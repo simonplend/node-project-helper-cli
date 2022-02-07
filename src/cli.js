@@ -175,7 +175,7 @@ export async function cli(argv) {
 		 * Create new GitHub repository from local repository.
 		 */
 
-		if (options.git) {
+		if (options.github) {
 			await $`gh repo create ${projectPackageJson.name} --private --source=. --remote=origin --push`;
 		}
 

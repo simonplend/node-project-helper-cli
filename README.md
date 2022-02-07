@@ -39,7 +39,9 @@ bootstrap <project_name> [flags]
 
 <dl>
 	<dt><code>--git</code></dt>
-	<dd>Create a git repository with a Node.js specific <code>.gitignore</code> and push project skeleton to GitHub.</dd>
+	<dd>Create a local git repository with a Node.js specific <code>.gitignore</code> and commit project skeleton.</dd>
+	<dt><code>--github</code></dt>
+	<dd>Create new repository on GitHub, set as remote, push up local commits.</dd>
 	<dt><code>--esm</code></dt>
 	<dd>Project will use ECMAScript (ES) modules by default.</dd>
 	<dt><code>--editorconfig</code></dt>
