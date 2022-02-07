@@ -81,7 +81,6 @@ export async function cli(argv) {
 			.unset("keywords")
 			.set("type", options.moduleType)
 			.set("private", true)
-			// TODO: set: repository, bugs
 			.save();
 
 		/**
@@ -181,6 +180,8 @@ export async function cli(argv) {
 			const visibilityFlag = options.public ? "--public" : "--private";
 
 			await $`gh repo create ${projectPackageJson.name} ${visibilityFlag} --source=. --remote=origin --push`;
+
+			// TODO: set fields in package.json: repository, bugs
 		}
 
 		/**
