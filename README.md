@@ -117,3 +117,7 @@ Add a global configuration for git in your home directory, named `.gitconfig`.
 [core]
   editor = vim
 ```
+
+## License
+
+Licensed under the [MIT License](LICENSE.md).
