@@ -104,12 +104,21 @@ export async function cli(argv) {
 		}
 
 		/**
-		 * Install packages as project dependencies.
+		 * Install project dependencies.
 		 */
 
 		const haveDependenciesToInstall = options.dependencies.length > 0;
 		if (haveDependenciesToInstall) {
 			install(options.dependencies, { dev: false });
+		}
+
+		/**
+		 * Install project development dependencies.
+		 */
+
+		const haveDevDependenciesToInstall = options.devDependencies.length > 0;
+		if (haveDevDependenciesToInstall) {
+			install(options.devDependencies, { dev: true });
 		}
 
 		/**

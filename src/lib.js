@@ -68,7 +68,7 @@ function getPresetFromConfig({ presetName, config }) {
  */
 export async function optionsFromArgv(argv) {
 	argv = minimist(argv, {
-		string: ["dependencies"],
+		string: ["dependencies", "dev-dependencies"],
 		boolean: [
 			"git",
 			"github",
@@ -90,6 +90,8 @@ export async function optionsFromArgv(argv) {
 			eslint: false,
 			"lint-staged": false,
 			readme: false,
+			dependencies: "",
+			"dev-dependencies": "",
 		},
 	});
 
@@ -107,6 +109,9 @@ export async function optionsFromArgv(argv) {
 		moduleType: argv.esm ? "module" : "commonjs",
 		dependencies: argv.dependencies
 			? packagesStringToArray(argv.dependencies)
+			: [],
+		devDependencies: argv["dev-dependencies"]
+			? packagesStringToArray(argv["dev-dependencies"])
 			: [],
 		editorconfig: argv.editorconfig,
 		prettier: argv.prettier,
@@ -146,6 +151,17 @@ export async function optionsFromArgv(argv) {
 			)
 		);
 		await verifyNpmPackagesExist(options.dependencies);
+	}
+
+	if (options.devDependencies.length) {
+		console.log(
+			chalk.blue(
+				`Checking packages in --dev-dependencies exist... (${options.devDependencies.join(
+					", "
+				)})`
+			)
+		);
+		await verifyNpmPackagesExist(options.devDependencies);
 	}
 
 	return options;
@@ -226,6 +242,7 @@ async function identifyInvalidNpmPackages(packages) {
 	$.verbose = false;
 
 	let invalidPackages = [];
+	// TODO: Run these checks in parallel.
 	for (const pkg of packages) {
 		try {
 			await $`npm view ${pkg}`;

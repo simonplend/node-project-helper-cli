@@ -59,7 +59,9 @@ bootstrap <project_name> [flags]
 	<dt><code>--readme</code></dt>
 	<dd>Generate a basic README.</dd>
 	<dt><code>--dependencies="&lt;package_name&gt; &lt;package_name&gt;"</code></dt>
-	<dd>Install packages as project dependencies.</dd>
+	<dd>Install project dependencies (<code>dependencies</code>).</dd>
+	<dt><code>--dev-dependencies="&lt;package_name&gt; &lt;package_name&gt;"</code></dt>
+	<dd>Install project development dependencies (<code>devDependencies</code>).</dd>
 </dl>
 
 ### Configuration
