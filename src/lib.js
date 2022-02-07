@@ -1,15 +1,66 @@
-import { resolve } from "node:path";
+import * as path from "node:path";
 
 import minimist from "minimist";
 import { fetch } from "undici";
 import which from "which";
 import { $, chalk, fs } from "zx";
 
-export const moduleTypes = ["module", "commonjs"];
+const configFilepath = path.join(
+	process.env.HOME || process.env.USERPROFILE,
+	".config/bootstrap.json"
+);
 
 export function exitWithError(errorMessage) {
 	console.error(chalk.red(errorMessage));
 	process.exitCode = 1;
+}
+
+export function loadConfig() {
+	return fs.existsSync(configFilepath)
+		? fs.readJSONSync(configFilepath)
+		: null;
+}
+
+export function getPresetOptionValue(argv) {
+	argv = minimist(argv, {
+		string: ["preset"],
+		alias: {
+			preset: "p",
+		},
+	});
+
+	return argv.preset ? argv.preset : null;
+}
+
+export function combinePresetFlagsWithArgv({ presetName, config, argv }) {
+	const preset = getPresetFromConfig({
+		presetName,
+		config,
+	});
+
+	if (typeof preset.extends === "string") {
+		const basePreset = getPresetFromConfig({
+			presetName: preset.extends,
+			config,
+		});
+
+		argv = [...basePreset.flags, ...preset.flags, ...argv];
+	} else {
+		argv = [...preset.flags, ...argv];
+	}
+
+	return argv;
+}
+
+function getPresetFromConfig({ presetName, config }) {
+	const preset = config?.presets[presetName];
+	if (typeof preset !== "object") {
+		throw new Error(
+			`Preset '${presetName}' not defined in ${configFilepath}`
+		);
+	}
+
+	return preset;
 }
 
 /**
@@ -49,7 +100,7 @@ export async function optionsFromArgv(argv) {
 
 	const options = {
 		projectName,
-		projectDirectory: resolve(projectName),
+		projectDirectory: path.resolve(projectName),
 		git: argv.git,
 		github: argv.github,
 		public: argv.public,

@@ -3,5 +3,8 @@
 		"eslint:recommended",
 		"plugin:node/recommended",
 		"prettier"
-	]
+	],
+	"parserOptions": {
+		"ecmaVersion": 2022
+	}
 }

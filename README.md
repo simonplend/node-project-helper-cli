@@ -1,6 +1,6 @@
 # bootstrap
 
-> A command line tool for bootstrapping new Node.js projects.
+> Command line tool for running Node.js project tasks.
 
 Features are documented under [Options](#options).
 Potential feature additions are tracked on
@@ -8,12 +8,12 @@ Potential feature additions are tracked on
 
 ## Requirements
 
-- [Node.js](https://nodejs.org/en/) >= v16.0.0
-- npm
-	- [Configure npm init defaults](#configure-npm-init-defaults)
-- [Git](https://git-scm.com/) (for the `--git` option)
-	- [Add a global git config](#add-a-global-git-config)
-- [GitHub CLI](https://cli.github.com/) (>= v2.5.0)
+-   [Node.js](https://nodejs.org/en/) >= v16.0.0
+-   npm
+    -   [Configure npm init defaults](#configure-npm-init-defaults)
+-   [Git](https://git-scm.com/) (for the `--git` option)
+    -   [Add a global git config](#add-a-global-git-config)
+-   [GitHub CLI](https://cli.github.com/) (>= v2.5.0)
 
 ## Install
 
@@ -38,6 +38,8 @@ bootstrap <project_name> [flags]
 ### Options
 
 <dl>
+	<dt><code>--p</code>, <code>--preset &lt;preset_name&gt;</code> </dt>
+	<dd>Load flags from a preset defined in the <a href="#configuration">configuration file</a>.</dd>
 	<dt><code>--git</code></dt>
 	<dd>Create a local git repository with a Node.js specific <code>.gitignore</code> and commit project skeleton.</dd>
 	<dt><code>--github</code></dt>
@@ -59,6 +61,34 @@ bootstrap <project_name> [flags]
 	<dt><code>--dependencies="&lt;package_name&gt; &lt;package_name&gt;"</code></dt>
 	<dd>Install packages as project dependencies.</dd>
 </dl>
+
+### Configuration
+
+You can define presets in a `~/.config/bootstrap.json` file.
+
+Example:
+
+```json
+{
+	"presets": {
+		"app": {
+			"flags": [
+				"--git",
+				"--github",
+				"--editorconfig",
+				"--prettier",
+				"--eslint",
+				"--lint-staged",
+				"--readme"
+			]
+		},
+		"app:fastify": {
+			"extends": "app",
+			"flags": ["--dependencies=fastify"]
+		}
+	}
+}
+```
 
 ## Configure npm init defaults
 

@@ -6,9 +6,12 @@ import { $, cd } from "zx";
 
 import {
 	exitWithError,
+	loadConfig,
+	getPresetOptionValue,
+	combinePresetFlagsWithArgv,
+	optionsFromArgv,
 	checkRequiredProgramsExist,
 	checkGlobalGitSettings,
-	optionsFromArgv,
 	ensureProjectDirectory,
 	generateGitIgnore,
 	generateReadme,
@@ -20,10 +23,25 @@ const requiredPrograms = ["node", "npm", "npx"];
 export async function cli(argv) {
 	try {
 		/**
-		 * Parse command line arguments and check dependencies.
+		 * Handle config, presets and command line arguments.
 		 */
 
+		const config = loadConfig();
+
+		const presetOptionValue = getPresetOptionValue(argv);
+		if (presetOptionValue) {
+			argv = combinePresetFlagsWithArgv({
+				presetName: presetOptionValue,
+				config,
+				argv,
+			});
+		}
+
 		const options = await optionsFromArgv(argv);
+
+		/**
+		 * Check for programs and settings.
+		 */
 
 		if (options.git) {
 			requiredPrograms.push("git", "gh");
@@ -187,11 +205,11 @@ export async function cli(argv) {
 		}
 
 		/**
-		 * Provide user with next steps.
+		 * Completed.
 		 */
 
 		displayCompletedMessage({ projectName: projectPackageJson.name });
 	} catch (error) {
-		exitWithError(`Error: ${error.message}`);
+		return exitWithError(`Error: ${error.message}`);
 	}
 }
