@@ -10,6 +10,7 @@
     "mrm": "^3.0.10",
     "mrm-core": "^6.1.7",
     "mrm-task-editorconfig": "^3.0.8",
+    "mrm-task-license": "^4.0.8",
     "mrm-task-lint-staged": "^6.0.8",
     "undici": "^4.13.0",
     "which": "^2.0.2",

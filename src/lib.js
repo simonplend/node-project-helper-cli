@@ -78,6 +78,7 @@ export async function optionsFromArgv(argv) {
 			"prettier",
 			"eslint",
 			"lint-staged",
+			"license",
 			"readme",
 		],
 		default: {
@@ -89,6 +90,7 @@ export async function optionsFromArgv(argv) {
 			prettier: false,
 			eslint: false,
 			"lint-staged": false,
+			license: false,
 			readme: false,
 			dependencies: "",
 			"dev-dependencies": "",
@@ -117,6 +119,7 @@ export async function optionsFromArgv(argv) {
 		prettier: argv.prettier,
 		eslint: argv.eslint,
 		lintStaged: argv["lint-staged"],
+		license: argv.license,
 		readme: argv.readme,
 	};
 

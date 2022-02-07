@@ -1,6 +1,7 @@
 import mrmCore from "mrm-core";
 const { install, json, packageJson } = mrmCore;
 import generateEditorConfig from "mrm-task-editorconfig";
+import generateLicenseFile from "mrm-task-license";
 import installLintStaged from "mrm-task-lint-staged";
 import { $, cd } from "zx";
 
@@ -178,6 +179,21 @@ export async function cli(argv) {
 		}
 
 		const projectPackageJson = packageJson().get();
+
+		/**
+		 * Generate a license file.
+		 */
+
+		if (options.license) {
+			const params = generateLicenseFile.parameters;
+
+			generateLicenseFile({
+				license: params.license.default(),
+				licenseFile: "LICENSE.md",
+				name: params.name.default(),
+				email: params.email.default,
+			});
+		}
 
 		/**
 		 * Generate a basic README.

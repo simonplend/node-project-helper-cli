@@ -56,6 +56,8 @@ bootstrap <project_name> [flags]
 	<dd>Install <a href="https://eslint.org/">ESLint</a>, generate configuration (<code>.eslintrc.json</code>) and add npm run scripts.</dd>
 	<dt><code>--lint-staged</code></dt>
 	<dd>Install and configure <a href="https://www.npmjs.com/package/lint-staged">lint-staged</a>.</dd>
+	<dt><code>--license</code></dt>
+	<dd>Generate a LICENSE file. Determines the license from <code>package.json</code>, falls back to MIT license.</dd>
 	<dt><code>--readme</code></dt>
 	<dd>Generate a basic README.</dd>
 	<dt><code>--dependencies="&lt;package_name&gt; &lt;package_name&gt;"</code></dt>
