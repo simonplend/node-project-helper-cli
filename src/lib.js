@@ -9,7 +9,7 @@ export const moduleTypes = ["module", "commonjs"];
 
 export function exitWithError(errorMessage) {
 	console.error(chalk.red(errorMessage));
-	process.exit(1);
+	process.exitCode = 1;
 }
 
 /**
