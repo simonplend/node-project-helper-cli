@@ -15,17 +15,41 @@ export function exitWithError(errorMessage) {
 /**
  * @see https://www.npmjs.com/package/minimist
  */
- export function optionsFromArgv(argv) {
+export function optionsFromArgv(argv) {
 	argv = minimist(argv, {
 		string: ["dependencies"],
-		boolean: ["esm", "git"],
+		boolean: [
+			"esm",
+			"git",
+			"editorconfig",
+			"prettier",
+			"eslint",
+			"lint-staged",
+			"readme",
+		],
+		default: {
+			esm: false,
+			git: false,
+			editorconfig: true,
+			prettier: true,
+			eslint: true,
+			"lint-staged": true,
+			readme: true,
+		},
 	});
 
 	return {
 		projectDirectory: argv._[0],
 		moduleType: argv.esm ? "module" : "commonjs",
-		dependencies: argv.dependencies ? packagesStringToArray(argv.dependencies) : [],
+		dependencies: argv.dependencies
+			? packagesStringToArray(argv.dependencies)
+			: [],
 		git: argv.git,
+		editorconfig: argv.editorconfig,
+		prettier: argv.prettier,
+		eslint: argv.eslint,
+		lintStaged: argv["lint-staged"],
+		readme: argv.readme,
 	};
 }
 

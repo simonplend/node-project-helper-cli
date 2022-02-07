@@ -62,7 +62,9 @@ export async function cli(argv) {
 		 * @see @see https://mrm.js.org/docs/mrm-task-editorconfig
 		 */
 
-		generateEditorConfig({ indent: "tab" });
+		if (options.editorconfig) {
+			generateEditorConfig({ indent: "tab" });
+		}
 
 		/**
 		 * Generate a package.json file.
@@ -95,47 +97,53 @@ export async function cli(argv) {
 		 * Install Prettier and add npm run scripts.
 		 */
 
-		install("prettier");
+		if (options.prettier) {
+			install("prettier");
 
-		packageJson()
-			.setScript(
-				"format",
-				'prettier --loglevel warn --write "**/*.{js,css,md}"'
-			)
-			.save();
+			packageJson()
+				.setScript(
+					"format",
+					'prettier --loglevel warn --write "**/*.{js,css,md}"'
+				)
+				.save();
+		}
 
 		/**
 		 * Install and add npm run scripts for ESLint.
-		 */
-
-		install(["eslint", "eslint-config-prettier", "eslint-plugin-node"]);
-
-		packageJson()
-			.setScript("lint", "eslint . --cache --fix")
-			.prependScript("pretest", "npm run lint")
-			.save();
-
-		/**
+		 *
 		 * Generate ESLint configuration (.eslintrc.json).
 		 */
 
-		json(".eslintrc.json")
-			.set("extends", [
-				"eslint:recommended",
-				"plugin:node/recommended",
-				"prettier",
-			])
-			// TODO: What should ecmaVersion be?
-			// eslintrc.set("parserOptions", {
-			// 	ecmaVersion: 2021,
-			// });
-			.save();
+		if (options.eslint) {
+			install(["eslint", "eslint-config-prettier", "eslint-plugin-node"]);
+
+			packageJson()
+				.setScript("lint", "eslint . --cache --fix")
+				.prependScript("pretest", "npm run lint")
+				.save();
+
+			json(".eslintrc.json")
+				.set("extends", [
+					"eslint:recommended",
+					"plugin:node/recommended",
+					"prettier",
+				])
+				// TODO: What should ecmaVersion be?
+				// eslintrc.set("parserOptions", {
+				// 	ecmaVersion: 2021,
+				// });
+				.save();
+		}
 
 		/**
 		 * Install and add npm run scripts for lint-staged.
 		 */
 
-		if (options.git) {
+		if (
+			options.lintStaged &&
+			options.git &&
+			(options.prettier || options.eslint)
+		) {
 			installLintStaged({ lintStagedRules: {} });
 		}
 
@@ -144,10 +152,13 @@ export async function cli(argv) {
 		/**
 		 * Generate a basic README.
 		 */
-		await generateReadme({
-			projectDirectory,
-			projectName: projectPackageJson.name,
-		});
+
+		if (options.readme) {
+			await generateReadme({
+				projectDirectory,
+				projectName: projectPackageJson.name,
+			});
+		}
 
 		/**
 		 * Commit the project skeleton to git.
