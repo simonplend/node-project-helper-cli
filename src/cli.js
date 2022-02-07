@@ -173,10 +173,14 @@ export async function cli(argv) {
 
 		/**
 		 * Create new GitHub repository from local repository.
+		 *
+		 * @see https://cli.github.com/manual/gh_repo_create
 		 */
 
 		if (options.github) {
-			await $`gh repo create ${projectPackageJson.name} --private --source=. --remote=origin --push`;
+			const visibilityFlag = options.public ? "--public" : "--private";
+
+			await $`gh repo create ${projectPackageJson.name} ${visibilityFlag} --source=. --remote=origin --push`;
 		}
 
 		/**

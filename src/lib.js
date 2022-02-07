@@ -21,6 +21,7 @@ export async function optionsFromArgv(argv) {
 		boolean: [
 			"git",
 			"github",
+			"public",
 			"esm",
 			"editorconfig",
 			"prettier",
@@ -31,6 +32,7 @@ export async function optionsFromArgv(argv) {
 		default: {
 			git: false,
 			github: false,
+			public: false,
 			esm: false,
 			editorconfig: false,
 			prettier: false,
@@ -49,6 +51,7 @@ export async function optionsFromArgv(argv) {
 		projectName,
 		git: argv.git,
 		github: argv.github,
+		public: argv.public,
 		moduleType: argv.esm ? "module" : "commonjs",
 		dependencies: argv.dependencies
 			? packagesStringToArray(argv.dependencies)
@@ -63,6 +66,12 @@ export async function optionsFromArgv(argv) {
 	if (options.github && !options.git) {
 		throw new Error(
 			`Can't use --github flag without the --git flag.`
+		);
+	}
+
+	if (options.public && !options.github) {
+		throw new Error(
+			`Can't use --public flag without the --github flag.`
 		);
 	}
 
