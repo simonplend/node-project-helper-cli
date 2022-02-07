@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 import minimist from "minimist";
 import { fetch } from "undici";
 import which from "which";
-import { $, chalk, fs, question } from "zx";
+import { $, chalk, fs } from "zx";
 
 export const moduleTypes = ["module", "commonjs"];
 
@@ -169,16 +169,6 @@ function packagesStringToArray(packages) {
 		.trim()
 		.split(" ")
 		.filter((pkg) => pkg);
-}
-
-async function promptForPackages() {
-	let packagesToInstall = await question(
-		"Which npm packages do you want to install? "
-	);
-
-	packagesToInstall = packagesStringToArray(packagesToInstall);
-
-	return packagesToInstall;
 }
 
 async function identifyInvalidNpmPackages(packages) {
