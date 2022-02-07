@@ -6,6 +6,7 @@
   "author": "Simon Plenderleith <simon@simonplend.co.uk> (https://simonplend.com/)",
   "dependencies": {
     "gitignore": "^0.7.0",
+    "minimist": "^1.2.5",
     "mrm": "^3.0.10",
     "mrm-core": "^6.1.7",
     "mrm-task-editorconfig": "^3.0.8",

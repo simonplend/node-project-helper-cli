@@ -11,37 +11,27 @@ import {
 	optionsFromArgv,
 	ensureProjectDirectory,
 	generateGitIgnore,
-	promptForModuleType,
-	packagesStringToArray,
-	getDependenciesToInstall,
 	generateReadme,
 	displayCompletedMessage,
 } from "./lib.js";
 
-const choices = {
-	moduleType: "commonjs",
-	dependencies: [],
-};
+const requiredPrograms = ["node", "npm", "npx"];
 
-export async function cli({ argv }) {
+export async function cli(argv) {
 	try {
-		await checkRequiredProgramsExist(["git", "node", "npm", "npx"]);
-		await checkGlobalGitSettings(["user.name", "user.email"]);
-
 		/**
-		 * Collect user choices.
+		 * Parse command line arguments and check dependencies.
 		 */
 
 		const options = optionsFromArgv(argv);
 
-		console.log({ options });
+		if (options.git) {
+			requiredPrograms.push("git", "gh");
 
-		choices.moduleType =
-			options.moduleType || (await promptForModuleType());
+			await checkGlobalGitSettings(["user.name", "user.email"]);
+		}
 
-		choices.dependencies = options.dependencies
-			? packagesStringToArray(options.dependencies)
-			: await getDependenciesToInstall();
+		await checkRequiredProgramsExist(requiredPrograms);
 
 		/**
 		 * Ensure project directory exists.
@@ -58,23 +48,18 @@ export async function cli({ argv }) {
 		cd(projectDirectory);
 
 		/**
-		 * Initialise a new git repository.
+		 * Initialise a new git repository with a .gitignore file.
 		 */
 
-		await $`git init`;
+		if (options.git) {
+			await $`git init`;
+			await generateGitIgnore();
+		}
 
 		/**
-		 * Add a .gitignore file.
+		 * Generate an EditorConfig file (.editorconfig).
 		 *
-		 * @see https://github.com/github/gitignore
-		 */
-
-		await generateGitIgnore();
-
-		/**
-		 * Generate EditorConfig (.editorconfig).
-		 *
-		 * @see https://mrm.js.org/docs/mrm-task-editorconfig
+		 * @see @see https://mrm.js.org/docs/mrm-task-editorconfig
 		 */
 
 		generateEditorConfig({ indent: "tab" });
@@ -92,7 +77,7 @@ export async function cli({ argv }) {
 			.unset("description")
 			.unset("main")
 			.unset("keywords")
-			.set("type", choices.moduleType)
+			.set("type", options.moduleType)
 			.set("private", true)
 			// TODO: set: repository, bugs
 			.save();
@@ -100,9 +85,10 @@ export async function cli({ argv }) {
 		/**
 		 * Install project dependencies.
 		 */
-		const haveDependenciesToInstall = choices.dependencies.length > 0;
+
+		const haveDependenciesToInstall = options.dependencies.length > 0;
 		if (haveDependenciesToInstall) {
-			install(choices.dependencies, { dev: false });
+			install(options.dependencies, { dev: false });
 		}
 
 		/**
@@ -149,7 +135,9 @@ export async function cli({ argv }) {
 		 * Install and add npm run scripts for lint-staged.
 		 */
 
-		installLintStaged({ lintStagedRules: {} });
+		if (options.git) {
+			installLintStaged({ lintStagedRules: {} });
+		}
 
 		const projectPackageJson = packageJson().get();
 
@@ -165,8 +153,18 @@ export async function cli({ argv }) {
 		 * Commit the project skeleton to git.
 		 */
 
-		await $`git add .`;
-		await $`git commit -m "Add project skeleton"`;
+		if (options.git) {
+			await $`git add .`;
+			await $`git commit -m "Add project skeleton"`;
+		}
+
+		/**
+		 * Create new GitHub repository from local repository.
+		 */
+
+		if (options.git) {
+			await $`gh repo create ${projectPackageJson.name} --private --source=. --remote=origin --push`;
+		}
 
 		/**
 		 * Provide user with next steps.

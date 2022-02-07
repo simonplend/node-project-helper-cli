@@ -1,5 +1,6 @@
 import { resolve } from "node:path";
 
+import minimist from "minimist";
 import { fetch } from "undici";
 import which from "which";
 import { $, chalk, fs, question } from "zx";
@@ -9,6 +10,23 @@ export const moduleTypes = ["module", "commonjs"];
 export function exitWithError(errorMessage) {
 	console.error(chalk.red(errorMessage));
 	process.exit(1);
+}
+
+/**
+ * @see https://www.npmjs.com/package/minimist
+ */
+ export function optionsFromArgv(argv) {
+	argv = minimist(argv, {
+		string: ["dependencies"],
+		boolean: ["esm", "git"],
+	});
+
+	return {
+		projectDirectory: argv._[0],
+		moduleType: argv.esm ? "module" : "commonjs",
+		dependencies: argv.dependencies ? packagesStringToArray(argv.dependencies) : [],
+		git: argv.git,
+	};
 }
 
 export async function checkRequiredProgramsExist(programs) {
@@ -51,17 +69,6 @@ export async function checkGlobalGitSettings(settingsToCheck) {
 	}
 }
 
-/**
- * @see https://www.npmjs.com/package/minimist
- */
-export function optionsFromArgv(argv) {
-	return {
-		projectDirectory: argv._[0],
-		moduleType: argv.esm ? "module" : null,
-		dependencies: argv.dependencies,
-	};
-}
-
 export async function ensureProjectDirectory(projectDirectory) {
 	// TODO: Validation should happen elsewhere
 	if (!projectDirectory) {
@@ -81,6 +88,9 @@ export async function ensureProjectDirectory(projectDirectory) {
 	return projectDirectory;
 }
 
+/**
+ * @see https://github.com/github/gitignore
+ */
 export async function generateGitIgnore() {
 	const response = await fetch(
 		"https://raw.githubusercontent.com/github/gitignore/main/Node.gitignore"
@@ -123,7 +133,7 @@ export async function promptForModuleType() {
 	return selectedModuleType;
 }
 
-export function packagesStringToArray(packages) {
+function packagesStringToArray(packages) {
 	return packages
 		.trim()
 		.split(" ")
@@ -189,8 +199,7 @@ export async function generateReadme({ projectDirectory, projectName }) {
 export function displayCompletedMessage({ projectName }) {
 	console.log(
 		chalk.green(
-			`\n✔️ The project ${projectName} has been successfully bootstrapped!\n`
+			`\n✔️ The project '${projectName}' has been successfully bootstrapped!\n`
 		)
 	);
-	console.log(chalk.green(`Add a git remote and push your changes.`));
 }
