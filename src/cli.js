@@ -200,9 +200,14 @@ export async function cli(argv) {
 		 */
 
 		if (options.readme) {
-			await generateReadme({
-				projectDirectory,
+			let licenseDescription = "No license.";
+			if (options.license && projectPackageJson.license) {
+				licenseDescription = `Licensed under the [${projectPackageJson.license} License](LICENSE.md).`;
+			}
+
+			generateReadme({
 				projectName: projectPackageJson.name,
+				licenseDescription: licenseDescription,
 			});
 		}
 

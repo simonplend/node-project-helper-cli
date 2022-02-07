@@ -1,9 +1,14 @@
 import * as path from "node:path";
+import { fileURLToPath } from "node:url";
 
 import minimist from "minimist";
+import mrmCore from "mrm-core";
+const { template } = mrmCore;
 import { fetch } from "undici";
 import which from "which";
 import { $, chalk, fs } from "zx";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const configFilepath = path.join(
 	process.env.HOME || process.env.USERPROFILE,
@@ -272,13 +277,12 @@ export async function verifyNpmPackagesExist(packages) {
 	}
 }
 
-export async function generateReadme({ projectDirectory, projectName }) {
-	const readmeContents = `# ${projectName}
+export async function generateReadme({ projectName, licenseDescription }) {
+	const readmeTemplate = path.join(__dirname, `../templates/README.md`);
 
-...
-`;
-
-	await fs.writeFile(`${projectDirectory}/README.md`, readmeContents);
+	template("README.md", readmeTemplate)
+		.apply({ projectName, licenseDescription })
+		.save();
 }
 
 export function displayCompletedMessage({ projectName }) {

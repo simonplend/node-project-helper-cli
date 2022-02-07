@@ -1,6 +1,6 @@
 # bootstrap
 
-> Command line tool for running Node.js project tasks.
+Command line tool for running Node.js project tasks.
 
 Features are documented under [Options](#options).
 Potential feature additions are tracked on
