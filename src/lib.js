@@ -49,6 +49,7 @@ export async function optionsFromArgv(argv) {
 
 	const options = {
 		projectName,
+		projectDirectory: resolve(projectName),
 		git: argv.git,
 		github: argv.github,
 		public: argv.public,
@@ -64,21 +65,23 @@ export async function optionsFromArgv(argv) {
 	};
 
 	if (options.github && !options.git) {
-		throw new Error(
-			`Can't use --github flag without the --git flag.`
-		);
+		throw new Error(`Can't use --github flag without the --git flag.`);
 	}
 
 	if (options.public && !options.github) {
-		throw new Error(
-			`Can't use --public flag without the --github flag.`
-		);
+		throw new Error(`Can't use --public flag without the --github flag.`);
 	}
 
 	if (options.lintStaged) {
-		if (!options.git || (!options.prettier && !options.eslint)) {
+		const gitPathStats = fs.statSync(`${options.projectDirectory}/.git`, {
+			throwIfNoEntry: false,
+		});
+		const existingGitRepository =
+			gitPathStats && gitPathStats.isDirectory();
+
+		if (!existingGitRepository && !options.git) {
 			throw new Error(
-				`Can't use --lint-staged flag.\nRequires --git flag, and --prettier or --eslint flags, to be set.`
+				`Can't use --lint-staged flag.\nRequires --git flag or existing directory to contain a git repository.`
 			);
 		}
 	}
@@ -138,8 +141,6 @@ export async function checkGlobalGitSettings(settingsToCheck) {
 }
 
 export async function ensureProjectDirectory(projectDirectory) {
-	projectDirectory = resolve(projectDirectory);
-
 	if (!(await fs.pathExists(projectDirectory))) {
 		await fs.ensureDir(projectDirectory);
 

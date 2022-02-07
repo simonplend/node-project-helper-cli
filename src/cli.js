@@ -38,7 +38,7 @@ export async function cli(argv) {
 		 */
 
 		const projectDirectory = await ensureProjectDirectory(
-			options.projectName
+			options.projectDirectory
 		);
 
 		/**
