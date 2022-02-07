@@ -23,7 +23,7 @@ export async function cli(argv) {
 		 * Parse command line arguments and check dependencies.
 		 */
 
-		const options = optionsFromArgv(argv);
+		const options = await optionsFromArgv(argv);
 
 		if (options.git) {
 			requiredPrograms.push("git", "gh");
@@ -38,7 +38,7 @@ export async function cli(argv) {
 		 */
 
 		const projectDirectory = await ensureProjectDirectory(
-			options.projectDirectory
+			options.projectName
 		);
 
 		/**
@@ -85,7 +85,7 @@ export async function cli(argv) {
 			.save();
 
 		/**
-		 * Install project dependencies.
+		 * Install packages as project dependencies.
 		 */
 
 		const haveDependenciesToInstall = options.dependencies.length > 0;
@@ -98,7 +98,7 @@ export async function cli(argv) {
 		 */
 
 		if (options.prettier) {
-			install("prettier");
+			install("prettier", { dev: true });
 
 			packageJson()
 				.setScript(
@@ -109,13 +109,23 @@ export async function cli(argv) {
 		}
 
 		/**
-		 * Install and add npm run scripts for ESLint.
-		 *
-		 * Generate ESLint configuration (.eslintrc.json).
+		 * Install ESLint, generate configuration (.eslintrc.json)
+		 * and add npm run scripts.
 		 */
 
 		if (options.eslint) {
-			install(["eslint", "eslint-config-prettier", "eslint-plugin-node"]);
+			const eslintDependencies = ["eslint", "eslint-plugin-node"];
+			const extendsPresets = [
+				"eslint:recommended",
+				"plugin:node/recommended",
+			];
+
+			if (options.prettier) {
+				eslintDependencies.push("eslint-config-prettier");
+				extendsPresets.push("prettier");
+			}
+
+			install(eslintDependencies, { dev: true });
 
 			packageJson()
 				.setScript("lint", "eslint . --cache --fix")
@@ -123,11 +133,7 @@ export async function cli(argv) {
 				.save();
 
 			json(".eslintrc.json")
-				.set("extends", [
-					"eslint:recommended",
-					"plugin:node/recommended",
-					"prettier",
-				])
+				.set("extends", extendsPresets)
 				// TODO: What should ecmaVersion be?
 				// eslintrc.set("parserOptions", {
 				// 	ecmaVersion: 2021,
@@ -136,14 +142,10 @@ export async function cli(argv) {
 		}
 
 		/**
-		 * Install and add npm run scripts for lint-staged.
+		 * Install and configure lint-staged.
 		 */
 
-		if (
-			options.lintStaged &&
-			options.git &&
-			(options.prettier || options.eslint)
-		) {
+		if (options.lintStaged) {
 			installLintStaged({ lintStagedRules: {} });
 		}
 
@@ -183,6 +185,6 @@ export async function cli(argv) {
 
 		displayCompletedMessage({ projectName: projectPackageJson.name });
 	} catch (error) {
-		exitWithError(error.message);
+		exitWithError(`Error: ${error.message}`);
 	}
 }

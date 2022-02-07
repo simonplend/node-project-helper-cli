@@ -15,12 +15,12 @@ export function exitWithError(errorMessage) {
 /**
  * @see https://www.npmjs.com/package/minimist
  */
-export function optionsFromArgv(argv) {
+export async function optionsFromArgv(argv) {
 	argv = minimist(argv, {
 		string: ["dependencies"],
 		boolean: [
-			"esm",
 			"git",
+			"esm",
 			"editorconfig",
 			"prettier",
 			"eslint",
@@ -28,29 +28,55 @@ export function optionsFromArgv(argv) {
 			"readme",
 		],
 		default: {
-			esm: false,
 			git: false,
-			editorconfig: true,
-			prettier: true,
-			eslint: true,
-			"lint-staged": true,
-			readme: true,
+			esm: false,
+			editorconfig: false,
+			prettier: false,
+			eslint: false,
+			"lint-staged": false,
+			readme: false,
 		},
 	});
 
-	return {
-		projectDirectory: argv._[0],
+	const projectName = argv._[0];
+	if (!projectName) {
+		throw new Error("You must specify the <project_name> argument");
+	}
+
+	const options = {
+		projectName,
+		git: argv.git,
 		moduleType: argv.esm ? "module" : "commonjs",
 		dependencies: argv.dependencies
 			? packagesStringToArray(argv.dependencies)
 			: [],
-		git: argv.git,
 		editorconfig: argv.editorconfig,
 		prettier: argv.prettier,
 		eslint: argv.eslint,
 		lintStaged: argv["lint-staged"],
 		readme: argv.readme,
 	};
+
+	if (options.dependencies.length) {
+		console.log(
+			chalk.blue(
+				`Checking packages in --dependencies exist... (${options.dependencies.join(
+					", "
+				)})`
+			)
+		);
+		await verifyNpmPackagesExist(options.dependencies);
+	}
+
+	if (options.lintStaged) {
+		if (!options.git || (!options.prettier && !options.eslint)) {
+			throw new Error(
+				`Can't use --lint-staged flag.\nRequires --git flag, and --prettier or --eslint flags, to be set.`
+			);
+		}
+	}
+
+	return options;
 }
 
 export async function checkRequiredProgramsExist(programs) {
@@ -59,7 +85,7 @@ export async function checkRequiredProgramsExist(programs) {
 			await which(program);
 		}
 	} catch (error) {
-		throw new Error(`Error: Required command ${error.message}`);
+		throw new Error(`Required program ${error.message}`);
 	}
 }
 
@@ -94,11 +120,6 @@ export async function checkGlobalGitSettings(settingsToCheck) {
 }
 
 export async function ensureProjectDirectory(projectDirectory) {
-	// TODO: Validation should happen elsewhere
-	if (!projectDirectory) {
-		throw new Error("Error: You must specify the <PROJECT_NAME> argument");
-	}
-
 	projectDirectory = resolve(projectDirectory);
 
 	if (!(await fs.pathExists(projectDirectory))) {
@@ -122,39 +143,6 @@ export async function generateGitIgnore() {
 	const gitIgnoreContents = await response.text();
 
 	await fs.writeFile(".gitignore", gitIgnoreContents);
-}
-
-async function doPromptForModuleType(moduleTypes) {
-	// TODO: Change to be 'Use ECMAScript (ES) modules by default?'
-	const moduleType = await question(
-		`Which Node.js module system do you want to use? (${moduleTypes.join(
-			" or "
-		)}) `,
-		{
-			choices: moduleTypes,
-		}
-	);
-
-	return moduleType;
-}
-
-export async function promptForModuleType() {
-	const selectedModuleType = await doPromptForModuleType(moduleTypes);
-
-	const isValidModuleType = moduleTypes.includes(selectedModuleType);
-	if (!isValidModuleType) {
-		console.error(
-			chalk.red(
-				`Error: Module system must be either '${moduleTypes.join(
-					"' or '"
-				)}'\n`
-			)
-		);
-
-		return await promptForModuleType();
-	}
-
-	return selectedModuleType;
 }
 
 function packagesStringToArray(packages) {
@@ -191,24 +179,17 @@ async function identifyInvalidNpmPackages(packages) {
 	return invalidPackages;
 }
 
-export async function getDependenciesToInstall() {
-	const packagesToInstall = await promptForPackages();
-	const invalidPackages = await identifyInvalidNpmPackages(packagesToInstall);
+export async function verifyNpmPackagesExist(packages) {
+	const invalidPackages = await identifyInvalidNpmPackages(packages);
 
 	const allPackagesExist = invalidPackages.length === 0;
 	if (!allPackagesExist) {
-		console.error(
-			chalk.red(
-				`Error: The following packages do not exist on npm: ${invalidPackages.join(
-					", "
-				)}\n`
-			)
+		throw new Error(
+			`The following packages do not exist on npm: ${invalidPackages.join(
+				", "
+			)}`
 		);
-
-		return await getDependenciesToInstall();
 	}
-
-	return packagesToInstall;
 }
 
 export async function generateReadme({ projectDirectory, projectName }) {
