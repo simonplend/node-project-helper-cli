@@ -1,4 +1,4 @@
-# bootstrap
+# node-project-helper-cli
 
 Command line tool for running Node.js project tasks.
 
@@ -20,19 +20,19 @@ Potential feature additions are tracked on
 Install globally:
 
 ```
-npm install -g github:simonplend/bootstrap
+npm install -g github:simonplend/node-project-helper-cli
 ```
 
 Or run as a one off:
 
 ```bash
-npx github:simonplend/bootstrap
+npx github:simonplend/node-project-helper-cli
 ```
 
 ## Usage
 
 ```bash
-bootstrap <project_name> [flags]
+nph <project_name> [flags]
 ```
 
 ### Options
@@ -68,7 +68,7 @@ bootstrap <project_name> [flags]
 
 ### Configuration
 
-You can define presets in a `~/.config/bootstrap.json` file.
+You can define presets in a `~/.config/node-project-helper-cli.json` file.
 
 Example:
 

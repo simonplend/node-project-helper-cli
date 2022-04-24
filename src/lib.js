@@ -12,7 +12,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const configFilepath = path.join(
 	process.env.HOME || process.env.USERPROFILE,
-	".config/bootstrap.json"
+	".config/node-project-helper-cli.json"
 );
 
 export function exitWithError(errorMessage) {

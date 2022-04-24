@@ -1,8 +1,11 @@
 {
-  "name": "bootstrap",
+  "name": "node-project-helper-cli",
   "version": "0.1.0",
   "type": "module",
-  "bin": "./bin/bootstrap.js",
+  "bin": {
+	  "node-project-helper-cli": "./bin/cli.js",
+	  "nph": "./bin/cli.js"
+  },
   "author": "Simon Plenderleith <simon@simonplend.co.uk> (https://simonplend.com/)",
   "dependencies": {
     "gitignore": "^0.7.0",
